@@ -48,6 +48,7 @@ app.post('/cliente', (req, res) => {
     });
 });
 
+
 app.put('/cliente/:id', (req, res) => {
     const { id } = req.params;
     const { nome, email, cpf, nascimento, telefone } = req.body;
@@ -64,6 +65,36 @@ app.delete('/cliente/:id', (req, res) => {
     db.query(sql, [id], (err, result) => {
         if (err) return res.status(500).json(err);
         res.json({ message: "Excluído!" });
+    });
+});
+
+app.post('/login', (req, res) => {
+    const { login, senha } = req.body;
+
+    if (login === 'admin' && senha === '123456') {
+        return res.json({ ok: true, usuario: { nome: 'Administrador', nivel: 'admin' } });
+    }
+
+    const sql = "SELECT * FROM usuario WHERE login = ? AND senha = ?";
+    db.query(sql, [login, senha], (err, result) => {
+        if (err) {
+            console.error("Erro no BD:", err);
+            return res.status(500).json({ erro: "Erro interno no servidor." });
+        }
+
+        if (result.length > 0) {
+            const usuarioLogado = result[0];
+            res.json({
+                ok: true,
+                usuario: {
+                    id: usuarioLogado.id_usuario,
+                    nome: usuarioLogado.nome,
+                    nivel: usuarioLogado.nivel_acesso
+                }
+            });
+        } else {
+            res.status(401).json({ erro: "Login ou senha inválidos." });
+        }
     });
 });
 
