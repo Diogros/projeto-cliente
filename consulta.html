@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Paciente - Clínica</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 50px; }
+        .card-consulta { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 450px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 6px; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        #resultado { margin-top: 25px; text-align: left; display: none; border-top: 1px solid #eee; padding-top: 15px; }
+        .erro { color: #dc3545; display: none; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="card-consulta">
+    <h2>Consultar Meus Dados</h2>
+    <p>Insira o seu CPF para visualizar as informações.</p>
+    <input type="text" id="consulta-cpf" placeholder="000.000.000-00">
+    <button onclick="buscarPaciente()">Consultar</button>
+    <p id="msg-erro" class="erro">Paciente não encontrado.</p>
+
+    <div id="resultado">
+        <p><strong>Nome:</strong> <span id="res-nome"></span></p>
+        <p><strong>Telefone:</strong> <span id="res-tel"></span></p>
+        <p><strong>E-mail:</strong> <span id="res-email"></span></p>
+    </div>
+</div>
+
+<script>
+    async function buscarPaciente() {
+        const cpf = document.getElementById('consulta-cpf').value.replace(/\D/g, '');
+        const resDiv = document.getElementById('resultado');
+        const erroMsg = document.getElementById('msg-erro');
+
+        try {
+           
+            const response = await fetch(`http://localhost:3000/cliente`);
+            const pacientes = await response.json();
+            
+            
+            const paciente = pacientes.find(p => p.cpf.replace(/\D/g, '') === cpf);
+            if (paciente) {
+                document.getElementById('res-nome').innerText = paciente.nome;
+                document.getElementById('res-tel').innerText = paciente.telefone;
+                document.getElementById('res-email').innerText = paciente.email || 'Não informado';
+                resDiv.style.display = 'block';
+                erroMsg.style.display = 'none';
+            } else {
+                resDiv.style.display = 'none';
+                erroMsg.style.display = 'block';
+            }
+        } catch (f) {
+            alert("Erro ao conectar ao servidor. Certifique-se de que o server.js está a correr.");
+        }
+    }
+</script>
+</body>
+</html>
