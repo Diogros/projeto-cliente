@@ -1,7 +1,7 @@
 Sistema de Gestão Clínica - Mecânica Precision
 Este projeto consiste numa solução full-stack desenvolvida para a gestão de pacientes, integrando uma aplicação desktop robusta com uma interface web de consulta rápida. O sistema foi concebido para automatizar o fluxo de atendimento, desde o registo inicial até à consulta de dados por parte do utilizador final.  
 
-📋 Descrição do Projeto
+Descrição do Projeto
 A aplicação permite o controlo total de pacientes através de um sistema CRUD (Create, Read, Update, Delete).  
 
 
@@ -10,7 +10,7 @@ Módulo Administrativo (Desktop): Desenvolvido em Electron para uso interno da c
 
 Módulo de Consulta (Web): Uma página leve que permite aos pacientes consultarem os seus próprios dados através do CPF, garantindo acessibilidade e integração entre plataformas.  
 
-🛠️ Tecnologias Utilizadas
+Tecnologias Utilizadas
 
 Ambiente de Execução: Node.js   
 
@@ -26,7 +26,7 @@ Banco de Dados: MySQL para persistência de dados
 
 Frontend: HTML5, CSS3 (com variáveis nativas e animações) e JavaScript Vanilla   
 
-📸 Demonstração
+Demonstração
 (Dica: Substitua os links abaixo pelos caminhos reais das imagens no seu repositório)
 
 Interface de Gestão (Desktop)
@@ -35,7 +35,7 @@ Legenda: Dashboard administrativo com listagem ordenada e botões de ação.
 Consulta Web
 Legenda: Interface web responsiva para consulta de pacientes por CPF.  
 
-⚙️ Como Executar o Sistema
+Como Executar o Sistema
 1. Preparação do Banco de Dados
 Certifique-se de que o MySQL está a correr e execute o seguinte script no seu terminal ou Workbench:
 
