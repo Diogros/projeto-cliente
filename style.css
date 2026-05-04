@@ -1,103 +1,331 @@
-const express = require('express');
-const mysql = require('mysql2');
-const cors = require('cors');
-const app = express();
+:root {
+    --cor-fundo: #f4f7f6;
+    --cor-texto: #333333;
+    --cor-primaria: #007bff;
+    --cor-primaria-hover: #0056b3;
+    --cor-borda: #cccccc;
+    --cor-branco: #ffffff;
+    --sombra-leve: 0 4px 6px rgba(0, 0, 0, 0.05);
+    --sombra-media: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
 
-console.log("Conteúdo da variável mysql:", mysql);
-app.use(express.json());
-app.use(cors());
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',      
-    password: '',      
-    database: 'sistema' 
-});
-
-db.connect(err => {
-    if (err) {
-        console.error('Erro ao conectar ao banco:', err);
-        return;
-    }
-    console.log('Conectado ao MySQL com sucesso!');
-});
-
-app.get('/cliente', (req, res) => {
-    const sql = "SELECT * FROM cliente";
-    db.query(sql, (err, result) => {
-        if (err) return res.status(500).json(err);
-        res.json(result);
-    });
-});
-
-app.get('/cliente/:id', (req, res) => {
-    const { id } = req.params;
-    const sql = "SELECT * FROM cliente WHERE id_clientes = ?";
-    db.query(sql, [id], (err, result) => {
-        if (err) return res.status(500).json(err);
-        res.json(result[0]);
-    });
-});
-
-app.post('/cliente', (req, res) => {
-    const { nome, email, cpf, nascimento, telefone } = req.body;
-    const sql = "INSERT INTO cliente (nome, email, cpf, nascimento, telefone) VALUES (?, ?, ?, ?, ?)";
-    db.query(sql, [nome, email, cpf, nascimento, telefone], (err, result) => {
-        if (err) return res.status(500).json(err);
-        res.json({ message: "Cadastrado!", id: result.insertId });
-    });
-});
+body {
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding-top: 100px; 
+    padding-bottom: 40px;
+}
 
 
-app.put('/cliente/:id', (req, res) => {
-    const { id } = req.params;
-    const { nome, email, cpf, nascimento, telefone } = req.body;
-    const sql = "UPDATE cliente SET nome=?, email=?, cpf=?, nascimento=?, telefone=? WHERE id_clientes=?";
-    db.query(sql, [nome, email, cpf, nascimento, telefone, id], (err, result) => {
-        if (err) return res.status(500).json(err);
-        res.json({ message: "Atualizado!" });
-    });
-});
+#tabela-pacientes {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
 
-app.delete('/cliente/:id', (req, res) => {
-    const { id } = req.params;
-    const sql = "DELETE FROM cliente WHERE id_clientes = ?";
-    db.query(sql, [id], (err, result) => {
-        if (err) return res.status(500).json(err);
-        res.json({ message: "Excluído!" });
-    });
-});
+#tabela-pacientes th, 
+#tabela-pacientes td {
+    padding: 15px 20px; /* Isso cria o espaço "em branco" ao redor do texto */
+    text-align: left;
+    border-bottom: 1px solid #eeeeee;
+}
 
-app.post('/login', (req, res) => {
-    const { login, senha } = req.body;
+#tabela-pacientes th {
+    background-color: #f8f9fa;
+    color: #333;
+    font-weight: bold;
+}
 
-    if (login === 'admin' && senha === '123456') {
-        return res.json({ ok: true, usuario: { nome: 'Administrador', nivel: 'admin' } });
-    }
+.menu-principal {
+    background-color: var(--cor-branco);
+    box-shadow: var(--sombra-leve);
+    padding: 15px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
 
-    const sql = "SELECT * FROM usuario WHERE login = ? AND senha = ?";
-    db.query(sql, [login, senha], (err, result) => {
-        if (err) {
-            console.error("Erro no BD:", err);
-            return res.status(500).json({ erro: "Erro interno no servidor." });
-        }
+.menu-principal .logo {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--cor-primaria);
+}
 
-        if (result.length > 0) {
-            const usuarioLogado = result[0];
-            res.json({
-                ok: true,
-                usuario: {
-                    id: usuarioLogado.id_usuario,
-                    nome: usuarioLogado.nome,
-                    nivel: usuarioLogado.nivel_acesso
-                }
-            });
-        } else {
-            res.status(401).json({ erro: "Login ou senha inválidos." });
-        }
-    });
-});
+.menu-principal ul {
+    list-style: none;
+    display: flex;
+    gap: 10px;
+}
 
-app.listen(3000, () => {
-    console.log("Servidor rodando em http://localhost:3000");
-});
+.menu-principal a {
+    color: var(--cor-texto);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.menu-principal a:hover {
+    background-color: var(--cor-fundo);
+    color: var(--cor-primaria);
+}
+
+.menu-principal a.ativo {
+    background-color: var(--cor-primaria);
+    color: var(--cor-branco);
+}
+
+.container {
+    background-color: var(--cor-branco);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: var(--sombra-media);
+    width: 90%;
+    max-width: 800px;
+}
+
+.tela { display: none; }
+.tela.ativa { 
+    display: block; 
+    animation: fadeIn 0.4s ease-out; 
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+header h1 {
+    font-size: 26px;
+    margin-bottom: 6px;
+    color: var(--cor-texto);
+}
+
+header p {
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.linha-dupla {
+    display: flex;
+    gap: 20px;
+}
+
+.linha-dupla .form-group {
+    flex: 1;
+}
+
+label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #444;
+}
+
+input {
+    padding: 12px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 6px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background-color: #fafafa;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--cor-primaria);
+    background-color: var(--cor-branco);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15); 
+}
+
+.erro-msg {
+    color: #dc3545;
+    font-size: 13px;
+    display: none;
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+input.invalido {
+    border-color: #dc3545;
+    background-color: #fff8f8;
+}
+
+input.invalido:focus {
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+}
+
+.btn-salvar {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--cor-primaria);
+    color: var(--cor-branco);
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+.btn-salvar:hover {
+    background-color: var(--cor-primaria-hover);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    padding: 16px 12px;
+    text-align: left;
+    border-bottom: 1px solid #edf2f0;
+}
+
+th {
+    background-color: #f8fbf9;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--cor-borda);
+}
+
+tr:hover {
+    background-color: #fcfdfe;
+}
+
+.btn-acao {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 8px;
+    color: white;
+    transition: opacity 0.2s;
+}
+
+.btn-acao:hover { opacity: 0.8; }
+.btn-editar { background-color: #f39c12; } 
+.btn-excluir { background-color: #e74c3c; } 
+
+.vazio {
+    text-align: center;
+    color: #888;
+    margin-top: 20px;
+    padding: 40px;
+    background-color: #f9fafa;
+    border-radius: 8px;
+    border: 1px dashed var(--cor-borda);
+}
+.tela-autenticacao {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f2f5;
+}
+
+.card-login {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.card-login input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.erro-texto {
+    color: #e74c3c;
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+#tabela-pacientes {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    table-layout: fixed;
+}
+
+#tabela-pacientes th, 
+#tabela-pacientes td {
+    padding: 15px 10px; 
+    text-align: left;
+    border-bottom: 1px solid #eeeeee;
+    vertical-align: middle;
+}
+
+#tabela-pacientes th:nth-child(1), #tabela-pacientes td:nth-child(1) { width: 35%; } 
+#tabela-pacientes th:nth-child(2), #tabela-pacientes td:nth-child(2) { width: 20%; } 
+#tabela-pacientes th:nth-child(3), #tabela-pacientes td:nth-child(3) { width: 20%; }
+#tabela-pacientes th:nth-child(4), #tabela-pacientes td:nth-child(4) { 
+    width: 25%; 
+    text-align: right; 
+    padding-right: 0;  
+}
+
+.btn-acao {
+    margin-left: 5px;
+    margin-right: 0;
+}
+
+.container {
+    background-color: var(--cor-branco);
+    padding: 30px; 
+    border-radius: 12px;
+    box-shadow: var(--sombra-media);
+    width: 95%;
+    max-width: 900px; 
+}
